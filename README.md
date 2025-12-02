@@ -1,4 +1,4 @@
-# Pheno Profile
+# 🧬 Pheno Profile
 
 This project provides a complete pipeline for learning dense patient embeddings from a binary patient × HPO phenotype matrix, using multiple embedding methods:
 
