@@ -1,7 +1,11 @@
-<h1>
-  <img src="assets/phenoprofile_logo.png" alt="PhenoProfile" width="50" style="vertical-align: middle;"/>
-  Pheno Profile: Patient Phenotype Embeddings
-</h1>
+<p align="center">
+  <img src="assets/phenoprofile_logo.png" alt="PhenoProfile" width="220"/>
+</p>
+
+<h3 align="center">Patient Phenotype Embeddings</h3>
+
+<br>
+
 
 This project provides a complete pipeline for learning dense patient embeddings from a binary patient × HPO phenotype matrix, using multiple embedding methods:
 
