@@ -107,14 +107,13 @@ output/patient_embeddings_all_methods.npz
 Given points $x_1, x_2, \dots, x_n$ on a Riemannian manifold $(\mathcal{M}, g)$ and non-negative weights $w_i$ such that $\sum_{i=1}^{n} w_i = 1$, the Fréchet mean is the minimizer of the weighted squared geodesic distances:
 
 $$
-\mu^\* = \arg\min_{m \in \mathcal{M}}
-\sum_{i=1}^{n} w_i \, d(m, x_i)^2
+\mu^\* = \arg\min_{m \in \mathcal{M}} \sum_{i=1}^{n} w_i \ d(m, x_i)^2
 $$
 
 A standard gradient-based update rule (Riemannian gradient descent) is:
 
 $$
-m_{t+1} = \exp_{m_t} \Bigg(-\eta_t \sum_{i=1}^{n} w_i \, \log_{m_t}(x_i) \Bigg)
+m_{t+1} = \exp_{m_t} \Bigg(-\eta_t \sum_{i=1}^{n} w_i \ \log_{m_t}(x_i) \Bigg)
 $$
 
 where:
