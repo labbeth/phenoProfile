@@ -121,7 +121,7 @@ $$
 where:
 
 - $\log_{m_t}(x)$ is the logarithmic map at $m_t$,
-- $\exp_{m_t}(v)$ is the exponential map at $m_t$,
+- $\exp_{m_t}(.)$ is the exponential map at $m_t$,
 - $\eta_t$ is the learning rate.
 
 This is the hyperbolic analogue of the Euclidean centroid.
