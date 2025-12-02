@@ -102,7 +102,7 @@ output/patient_embeddings_all_methods.npz
 
 ### 📐 Mathematical Definitions
 
-#### Fréchet Mean (Karcher Mean)
+#### Fréchet Mean
 
 Given points $x_1, x_2, \dots, x_n$ on a Riemannian manifold $(\mathcal{M}, g)$ and non-negative weights $w_i$ such that $\sum_{i=1}^{n} w_i = 1$, the Fréchet mean is the minimizer of the weighted squared geodesic distances:
 
@@ -120,14 +120,14 @@ $$
 
 where:
 
-- $\log_{m_t}(x)$ is the **logarithmic map** at $m_t$,
-- $\exp_{m_t}(v)$ is the **exponential map** at $m_t$,
+- $\log_{m_t}(x)$ is the logarithmic map at $m_t$,
+- $\exp_{m_t}(v)$ is the exponential map at $m_t$,
 - $\eta_t$ is the learning rate.
 
 This is the hyperbolic analogue of the Euclidean centroid.
 
 
-#### Einstein Midpoint (Hyperbolic Weighted Midpoint)
+#### Einstein Midpoint
 
 Hyperbolic geometry uses **Möbius addition**.  
 In the Poincaré ball model with curvature $c > 0$, it is defined as:
@@ -162,9 +162,7 @@ $$
 
 Points closer to the boundary of the ball (larger norm) have higher $\gamma_x$, which gives more influence to *specific* or *deep* phenotypes.
 
-The Einstein midpoint is a **fast closed-form approximation** of the Fréchet mean in hyperbolic space.
-
-
+The Einstein midpoint is a **fast closed-form approximation** of the Fréchet mean in hyperbolic space, which is useful for large dataset.
 
 
 ## 🧪 Evaluation Workflow
