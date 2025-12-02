@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/phenoprofile_logo.png" alt="PhenoProfile" width="350"/>
 </p>
-<h3 align="center">Patient Phenotype Embeddings</h3>
+<h3 align="center">Patient Phenotypes Embeddings</h3>
 
 <br>
 
