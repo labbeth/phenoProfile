@@ -104,7 +104,7 @@ output/patient_embeddings_all_methods.npz
 
 #### Fréchet Mean (Karcher Mean)
 
-Given points $\(x_1, x_2, \dots, x_n\)$ on a Riemannian manifold $\((\mathcal{M}, g)\)$ and non-negative weights $\(w_i\) such that \(\sum_i w_i = 1\)$, the Fréchet mean is the minimizer of the weighted squared geodesic distances:
+Given points $\(x_1, x_2, \dots, x_n\)$ on a Riemannian manifold $\(\mathcal{M}, g)\$ and non-negative weights $\w_i\ such that \(\sum_i w_i = 1\)$, the Fréchet mean is the minimizer of the weighted squared geodesic distances:
 
 $$
 \mu^\* = \arg\min_{m \in \mathcal{M}}
