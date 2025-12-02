@@ -110,7 +110,9 @@ $$
 \mu^\* = \arg\min_{m \in \mathcal{M}} \sum_{i=1}^{n} w_i \ d(m, x_i)^2
 $$
 
-A standard gradient-based update rule (Riemannian gradient descent) is:
+where $d$ is the geodesic distance on the manifold (= hyperbolic distance in the Poincaré ball).
+
+In practice, the Fréchet mean is computed via Riemannian gradient descent:
 
 $$
 m_{t+1} = \exp_{m_t} \Bigg(-\eta_t \sum_{i=1}^{n} w_i \ \log_{m_t}(x_i) \Bigg)
@@ -124,7 +126,6 @@ where:
 
 This is the hyperbolic analogue of the Euclidean centroid.
 
----
 
 #### Einstein Midpoint (Hyperbolic Weighted Midpoint)
 
@@ -142,8 +143,7 @@ x \oplus_c y =
 }
 $$
 
-Given points $x_1, \dots, x_n$ with positive weights $\alpha_i$,  
-the **Einstein midpoint** is:
+Given points $x_1, \dots, x_n$ with positive weights $\alpha_i$, the **Einstein midpoint** (also called the gyrocenter or hyperbolic weighted midpoint) is:
 
 $$
 m =
@@ -160,8 +160,7 @@ $$
 \gamma_x = \frac{1}{\sqrt{1 - c\|x\|^2}}.
 $$
 
-Points closer to the boundary of the ball (larger norm) have higher $\gamma_x$,  
-which gives more influence to *specific* or *deep* phenotypes.
+Points closer to the boundary of the ball (larger norm) have higher $\gamma_x$, which gives more influence to *specific* or *deep* phenotypes.
 
 The Einstein midpoint is a **fast closed-form approximation** of the Fréchet mean in hyperbolic space.
 
