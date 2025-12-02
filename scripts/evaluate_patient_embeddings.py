@@ -24,7 +24,9 @@ PLOTS_DIR = OUT_DIR / "plots"
 EMB_PATH = OUT_DIR / "patient_embeddings_all_methods.npz"
 DIAG_PATH = DATA_DIR / "diagnosis_synthetic.csv"   # patient_id, diagnosis
 
-N_CLUSTERS = 5
+# Full-population clustering: number of clusters (can be ≠ #diagnoses)
+N_CLUSTERS_FULL = 15
+
 DO_TSNE = True        # Set to False to disable visualization
 TSNE_PERPLEXITY = 30
 RANDOM_SEED = 42
@@ -51,21 +53,20 @@ def compute_tsne(Z, seed=RANDOM_SEED, perplexity=30.0):
     return tsne.fit_transform(Z)
 
 
-def evaluate_embedding(Z, labels_true, n_clusters=5):
+def evaluate_embedding_subset(Z, labels_true, n_clusters: int):
     """
-    Run clustering + compute evaluation metrics.
-    Returns a dict.
+    Run clustering + compute evaluation metrics on a subset
+    where all labels_true are meaningful (no UNKNOWN).
+    Returns:
+      metrics: dict
+      labels_pred: cluster assignments
     """
     km = KMeans(n_clusters=n_clusters, random_state=RANDOM_SEED)
     labels_pred = km.fit_predict(Z)
 
     out = {}
-
-    # Supervised metrics (need ground truth)
     out["ARI"] = adjusted_rand_score(labels_true, labels_pred)
     out["NMI"] = normalized_mutual_info_score(labels_true, labels_pred)
-
-    # Unsupervised metrics
     out["Silhouette"] = silhouette_score(Z, labels_pred)
     out["DaviesBouldin"] = davies_bouldin_score(Z, labels_pred)
 
@@ -93,20 +94,37 @@ def main():
     print("Loading diagnosis ground truth from:", DIAG_PATH)
     diag_map = load_diagnosis_map(DIAG_PATH)
 
-    # Align diagnosis to embeddings
+    # Align diagnosis to embeddings, with cleaning of missing tokens
+    MISSING_TOKENS = {"", "UNKNOWN", "unknown", "NaN", "nan", "NA", "N/A", "None"}
+
     y_true = []
     missing = 0
     for pid in patient_ids:
-        if pid in diag_map:
-            y_true.append(diag_map[pid])
-        else:
+        raw = diag_map.get(pid, "")
+        diag = str(raw).strip()
+
+        if diag in MISSING_TOKENS:
             y_true.append("UNKNOWN")
             missing += 1
+        else:
+            y_true.append(diag)
 
     if missing > 0:
-        print(f"WARNING: {missing} patients have no diagnosis label. "
-              "They will be included under label 'UNKNOWN'.")
+        print(
+            f"INFO: {missing} patients have no diagnosis label "
+            "(marked as 'UNKNOWN')."
+        )
     y_true = np.array(y_true)
+
+    # Mask for diagnosed-only subset
+    diagnosed_mask = (y_true != "UNKNOWN")
+    n_diag = diagnosed_mask.sum()
+    unique_diag = np.unique(y_true[diagnosed_mask])
+    print(f"Diagnosed patients: {n_diag} (unique diagnoses: {len(unique_diag)})")
+
+    if n_diag < 10 or len(unique_diag) < 2:
+        print("WARNING: Very few diagnosed patients or too few diagnosis classes. "
+              "Diagnosed-only evaluation may be unstable.")
 
     # Prepare evaluation
     embedding_keys = [
@@ -126,43 +144,156 @@ def main():
             print(f"[SKIP] {key} not found in NPZ.")
             continue
 
-        print(f"\nEvaluating embedding: {key}")
-        Z = data[key]
+        print(f"\n==============================")
+        print(f"Evaluating embedding: {key}")
+        print(f"==============================")
 
-        # Normalization for Euclidean clustering (optional)
-        Z = Z.astype(np.float32)
+        Z = data[key].astype(np.float32)
+
+        # Normalization for Euclidean clustering (optional but standard)
         Z_mean = Z.mean(axis=0, keepdims=True)
         Z_std = Z.std(axis=0, keepdims=True) + 1e-6
         Z_norm = (Z - Z_mean) / Z_std
 
-        # Compute metrics
-        metrics, labels_pred = evaluate_embedding(Z_norm, y_true, n_clusters=N_CLUSTERS)
+        # --------------------------------------------------------
+        # 1) Diagnosed-only evaluation (Step 1)
+        # --------------------------------------------------------
+        if n_diag >= 2 and len(unique_diag) >= 2:
+            Z_diag = Z_norm[diagnosed_mask]
+            y_diag = y_true[diagnosed_mask]
+            n_clusters_diag = len(np.unique(y_diag))
 
-        # Save metrics
-        row = {"embedding": key}
-        row.update(metrics)
-        results.append(row)
+            print(f"  [Diag-only] Using n_clusters = #diagnoses = {n_clusters_diag}")
 
-        # t-SNE visualization
+            metrics_diag, labels_diag = evaluate_embedding_subset(
+                Z_diag, y_diag, n_clusters=n_clusters_diag
+            )
+
+            row_diag = {
+                "embedding": key,
+                "mode": "diag_only",
+                "n_clusters": n_clusters_diag,
+            }
+            row_diag.update(metrics_diag)
+            results.append(row_diag)
+
+            # t-SNE for diagnosed-only patients, colored by diagnosis
+            if DO_TSNE:
+                print("  [Diag-only] Computing t-SNE...")
+                Z_tsne_diag = compute_tsne(Z_diag, perplexity=TSNE_PERPLEXITY)
+
+                plt.figure(figsize=(7, 6))
+                sns.scatterplot(
+                    x=Z_tsne_diag[:, 0],
+                    y=Z_tsne_diag[:, 1],
+                    hue=y_diag,
+                    palette="tab20",
+                    s=10,
+                    linewidth=0,
+                )
+                plt.title(f"{key} – t-SNE (diagnosed only, colored by diagnosis)")
+                plt.tight_layout()
+                fname = PLOTS_DIR / f"tsne_{key}_diag_only.png"
+                plt.savefig(fname, dpi=200)
+                plt.close()
+                print(f"  [Diag-only] Saved t-SNE plot to: {fname}")
+        else:
+            print("  [Diag-only] Skipped (not enough diagnosed data).")
+
+        # --------------------------------------------------------
+        # 2) Full-pop clustering (Step 2)
+        # --------------------------------------------------------
+        print(f"  [Full-pop] Clustering all patients with n_clusters = {N_CLUSTERS_FULL}")
+        km_full = KMeans(n_clusters=N_CLUSTERS_FULL, random_state=RANDOM_SEED)
+        labels_full = km_full.fit_predict(Z_norm)
+
+        # Unsupervised metrics on full population
+        sil_full = silhouette_score(Z_norm, labels_full)
+        db_full = davies_bouldin_score(Z_norm, labels_full)
+
+        # ARI/NMI computed only over diagnosed patients,
+        # but using cluster labels from full-pop clustering
+        if n_diag >= 2 and len(unique_diag) >= 2:
+            y_diag = y_true[diagnosed_mask]
+            labels_full_diag = labels_full[diagnosed_mask]
+
+            ari_full = adjusted_rand_score(y_diag, labels_full_diag)
+            nmi_full = normalized_mutual_info_score(y_diag, labels_full_diag)
+        else:
+            ari_full = np.nan
+            nmi_full = np.nan
+
+        row_full = {
+            "embedding": key,
+            "mode": "full_pop",
+            "n_clusters": N_CLUSTERS_FULL,
+            "ARI": ari_full,
+            "NMI": nmi_full,
+            "Silhouette": sil_full,
+            "DaviesBouldin": db_full,
+        }
+        results.append(row_full)
+
+        # t-SNE for full population, colored by cluster ID
         if DO_TSNE:
-            print(f"  Computing t-SNE for: {key}")
-            Z_tsne = compute_tsne(Z_norm, perplexity=TSNE_PERPLEXITY)
+            print("  [Full-pop] Computing t-SNE...")
+            Z_tsne_full = compute_tsne(Z_norm, perplexity=TSNE_PERPLEXITY)
 
             plt.figure(figsize=(7, 6))
             sns.scatterplot(
-                x=Z_tsne[:, 0],
-                y=Z_tsne[:, 1],
-                hue=y_true,
+                x=Z_tsne_full[:, 0],
+                y=Z_tsne_full[:, 1],
+                hue=labels_full,
                 palette="tab20",
                 s=10,
                 linewidth=0,
+                legend=False,
             )
-            plt.title(f"{key} – t-SNE (colored by diagnosis)")
+            plt.title(f"{key} – t-SNE (full population, colored by cluster)")
             plt.tight_layout()
-            fname = PLOTS_DIR / f"tsne_{key}.png"
+            fname = PLOTS_DIR / f"tsne_{key}_full_clusters.png"
             plt.savefig(fname, dpi=200)
             plt.close()
-            print(f"  Saved t-SNE plot to: {fname}")
+            print(f"  [Full-pop] Saved t-SNE plot to: {fname}")
+
+        # --------------------------------------------------------
+        # 3) Diagnosis overlay on full-pop manifold (third plot)
+        # --------------------------------------------------------
+        if DO_TSNE and n_diag >= 2 and len(unique_diag) >= 2:
+            print("  [Full-pop] Plotting diagnosis overlay on population manifold...")
+
+            # All patients in light grey (background)
+            plt.figure(figsize=(7, 6))
+            plt.scatter(
+                Z_tsne_full[:, 0],
+                Z_tsne_full[:, 1],
+                c="lightgrey",
+                s=6,
+                alpha=0.4,
+                linewidths=0,
+            )
+
+            # Overlay diagnosed patients with colors by diagnosis
+            Z_tsne_diag = Z_tsne_full[diagnosed_mask]
+            y_diag = y_true[diagnosed_mask]
+
+            sns.scatterplot(
+                x=Z_tsne_diag[:, 0],
+                y=Z_tsne_diag[:, 1],
+                hue=y_diag,
+                palette="tab20",
+                s=18,
+                linewidth=0,
+                alpha=0.9,
+            )
+
+            plt.title(f"{key} – t-SNE (population with diagnosed overlay)")
+            plt.tight_layout()
+            fname = PLOTS_DIR / f"tsne_{key}_pop_with_diagnosis.png"
+            plt.savefig(fname, dpi=200)
+            plt.close()
+            print(f"  [Full-pop] Saved diagnosis overlay plot to: {fname}")
+
 
     # Save evaluation results
     df_res = pd.DataFrame(results)
