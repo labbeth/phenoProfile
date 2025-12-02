@@ -114,13 +114,7 @@ $$
 A standard gradient-based update rule (Riemannian gradient descent) is:
 
 $$
-\m_{t+1}
-=
-\exp_{m_t} \Bigg(
--\eta_t
-\sum_{i=1}^{n}
-w_i \, \log_{m_t}(x_i)
-\Bigg)
+m_{t+1} = \exp_{m_t} \Bigg(-\eta_t \sum_{i=1}^{n} w_i \, \log_{m_t}(x_i) \Bigg)
 $$
 
 where:
