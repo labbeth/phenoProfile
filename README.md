@@ -69,7 +69,7 @@ Using a pretrained HierarchyTransformers hyperbolic model, each phenotype has a 
 
 * taxonomic relationships
 
-### 3. Patient Embeddings (6 methods)
+### 3. Patient Embeddings
 
 For each patient, we derive a dense embedding using:
 
@@ -83,7 +83,10 @@ Linear and non-linear methods using only the binary Patient × Phenotype matrix.
 
 #### Knowledge-based approaches
 
-Non-linear based on HPO hyperbolic embeddings applied to the binary Patient × Phenotype matrix. 
+Non-linear method based on HPO hyperbolic embeddings applied to the binary Patient × Phenotype matrix. 
+
+As a result, a patient phenotypic profile is an aggregation of his phenotypes embeddings. 
+In hyperbolic geometry, this aggregation is typically done through Fréchet mean or Einstein midpoint (which is a good approximation to scale up).
 
 Unweighted methods treat each phenotype equally, while IC (Information-Content) methods weight each phenotype based on its relative discriminative importance within all the patients.
 
@@ -96,6 +99,87 @@ All resulting embeddings are stored in a single file:
 ```text
 output/patient_embeddings_all_methods.npz
 ```
+
+### 📐 Mathematical Definitions
+
+#### **Fréchet Mean (Karcher Mean)**
+
+Given points \(x_1, x_2, \dots, x_n\) on a Riemannian manifold \((\mathcal{M}, g)\) and optional non-negative weights \(w_i\) with \(\sum_i w_i = 1\), the **Fréchet mean** is defined as:
+
+\[
+\mu^\* = \arg\min_{m \in \mathcal{M}} 
+\sum_{i=1}^{n} w_i \, d(m, x_i)^2
+\]
+
+where \(d(\cdot,\cdot)\) is the geodesic distance on the manifold  
+(in this project: the hyperbolic distance in the Poincaré ball).
+
+The Riemannian gradient descent update used to compute this mean is:
+
+\[
+m_{t+1}
+= 
+\exp_m \left(
+- \eta_t 
+\sum_{i=1}^n
+w_i \, \log_m(x_i)
+\right)
+\]
+
+where:
+
+- \(\log_m(x)\) is the logarithmic map at \(m\),
+- \(\exp_m(v)\) is the exponential map,
+- \(\eta_t\) is the learning rate.
+
+This is the exact hyperbolic analogue of a centroid.
+
+---
+
+#### **Einstein Midpoint (Hyperbolic Weighted Midpoint)**
+
+The Poincaré ball uses **Möbius addition** to generalize Euclidean vector addition:
+
+\[
+x \oplus_c y
+=
+\frac{
+(1 + 2c\langle x,y\rangle + c\|y\|^2)x
++ (1 - c\|x\|^2)y
+}{
+1 + 2c\langle x,y\rangle 
++ c^2 \|x\|^2 \|y\|^2
+}.
+\]
+
+Given points \(x_1,\dots,x_n\) with weights \(\alpha_i > 0\), the **Einstein midpoint** is computed as:
+
+\[
+m =
+\frac{
+\sum_{i=1}^{n} \gamma_{x_i} \, \alpha_i \, x_i
+}{
+\sum_{i=1}^{n} \gamma_{x_i} \, \alpha_i
+},
+\qquad
+\gamma_x = \frac{1}{\sqrt{1 - c\|x\|^2}}.
+\]
+
+Here:
+
+- \(\gamma_x\) is the **Lorentz factor**, which increases with hyperbolic radius,
+- points closer to the boundary (large norm) contribute more,
+- this operation is a fast and accurate approximation of the Fréchet mean.
+
+The Einstein midpoint is widely used in hyperbolic NLP because it is:
+
+- **fully closed-form**
+- **computationally inexpensive**
+- **geometrically well-behaved** in tree-like data
+- and highly correlated with the exact Riemannian mean in practice.
+
+
+
 
 ## 🧪 Evaluation Workflow
 
@@ -128,3 +212,65 @@ output/plots/tsne_<method>.png
 ```
 
 ## 🛠 How to Run the Pipeline
+
+### Step 1: Compute all embeddings
+
+```
+python scripts/compute_patient_embeddings_all_methods.py
+```
+
+This:
+
+* Loads binary matrix
+* Loads HPO embeddings
+* Aligns columns
+* Computes 6 patient embedding methods (all except autoencoder)
+* Stores everything into a single ``patient_embeddings_all_methods.npz`` file
+* Generates statistics written to ``patient_embedding_stats.csv``
+
+### Step 2: Train Autoencoder
+
+```
+python scripts/train_patient_autoencoder.py
+```
+
+This:
+
+* Trains a 64-dimensional nonlinear autoencoder (latent dimension can be changed in the script)
+* Adds "autoencoder" to the same ``patient_embeddings_all_methods.npz`` file
+
+### Step 3: Generate synthetic diagnoses (optional) 
+
+If real diagnoses are not available:
+
+```
+python scripts/generate_synthetic_diagnosis_file.py
+```
+
+
+This creates:
+
+```
+data/diagnosis_synthetic.csv
+```
+
+### Step 4: Evaluate embeddings
+
+```
+python scripts/evaluate_patient_embeddings.py
+```
+
+This:
+
+* Loads the ``patient_embeddings_all_methods.npz`` file
+* Loads diagnosis file
+* Clusters each embedding (k=number of diagnoses)
+* Computes ARI, NMI, silhouette, DB index
+* Generates t-SNE visualizations
+
+Writes results to:
+
+```
+output/evaluation_results.csv
+```
+
