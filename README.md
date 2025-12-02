@@ -104,71 +104,71 @@ output/patient_embeddings_all_methods.npz
 
 #### Fréchet Mean (Karcher Mean)
 
-Given points \(x_1, x_2, \dots, x_n\) on a Riemannian manifold \((\mathcal{M}, g)\) and non-negative weights \(w_i\) such that \(\sum_{i=1}^{n} w_i = 1\), the **Fréchet mean** is defined as the minimizer of the weighted sum of squared geodesic distances:
+Given points \(x_1, x_2, \dots, x_n\) on a Riemannian manifold \((\mathcal{M}, g)\) and non-negative weights \(w_i\) such that \(\sum_i w_i = 1\), the Fréchet mean is the minimizer of the weighted squared geodesic distances:
 
-\[
+$$
 \mu^\* = \arg\min_{m \in \mathcal{M}}
 \sum_{i=1}^{n} w_i \, d(m, x_i)^2
-\]
+$$
 
-where \(d(\cdot,\cdot)\) is the geodesic distance on the manifold  
-(in this project: the hyperbolic distance in the Poincaré ball).
+A standard gradient-based update rule is:
 
-A common way to compute \(\mu^\*\) is Riemannian gradient descent:
-
-\[
+$$
 m_{t+1}
 =
-\exp_{m_t} \left(
-- \eta_t
-\sum_{i=1}^{n} w_i \, \log_{m_t}(x_i)
-\right)
-\]
+\exp_{m_t} \Bigg(
+-\eta_t
+\sum_{i=1}^{n}
+w_i \, \log_{m_t}(x_i)
+\Bigg)
+$$
 
 where:
 
-- \(\log_{m_t}(x_i)\) is the **logarithmic map** at \(m_t\),
+- \(\log_{m_t}(x)\) is the **logarithmic map** at \(m_t\),
 - \(\exp_{m_t}(v)\) is the **exponential map** at \(m_t\),
-- \(\eta_t\) is the learning rate at iteration \(t\).
-
-This is the hyperbolic analogue of the Euclidean centroid.
+- \(\eta_t\) is the learning rate.
 
 ---
 
 #### Einstein Midpoint (Hyperbolic Weighted Midpoint)
 
-In the Poincaré ball with curvature \(c > 0\), **Möbius addition** between two points \(x, y\) is defined as:
+Hyperbolic geometry uses **Möbius addition**.  
+In the Poincaré ball model with curvature \(c > 0\), it is defined as:
 
-\[
-x \oplus_c y
-=
+$$
+x \oplus_c y =
 \frac{
 (1 + 2c\langle x,y\rangle + c\|y\|^2)\,x
-+ (1 - c\|x\|^2)\,y
++
+(1 - c\|x\|^2)\,y
 }{
-1 + 2c\langle x,y\rangle + c^2 \|x\|^2 \|y\|^2
+1 + 2c\langle x,y\rangle + c^2\|x\|^2\|y\|^2
 }
-\]
+$$
 
-Given points \(x_1, \dots, x_n\) with positive weights \(\alpha_i\), the **Einstein midpoint** (also called the hyperbolic barycenter in the Einstein model) is:
+Given points \(x_1, \dots, x_n\) with positive weights \(\alpha_i\),  
+the **Einstein midpoint** is:
 
-\[
+$$
 m =
 \frac{
 \sum_{i=1}^{n} \gamma_{x_i} \, \alpha_i \, x_i
 }{
 \sum_{i=1}^{n} \gamma_{x_i} \, \alpha_i
-},
-\qquad
+}
+$$
+
+with Lorentz factor:
+
+$$
 \gamma_x = \frac{1}{\sqrt{1 - c\|x\|^2}}.
-\]
+$$
 
-Here:
+Points closer to the boundary of the ball (larger norm) have **higher γ**,  
+which gives more influence to *specific* or *deep* phenotypes.
 
-- \(\gamma_x\) is the **Lorentz factor**, which increases with the norm \(\|x\|\),
-- points closer to the boundary of the ball (more specific / deeper in the hierarchy) contribute more to the midpoint.
-
-The Einstein midpoint provides a **closed-form, computationally efficient approximation** of the Fréchet mean in hyperbolic space and is widely used in hyperbolic NLP and representation learning.
+The Einstein midpoint is a **fast closed-form approximation** of the Fréchet mean.
 
 
 
