@@ -187,11 +187,11 @@ We measure how well the embedding space organizes patients with known diagnoses.
 
 We use KMeans with k = number of diagnosis classes and compute:
 
-* Adjusted Rand Index (ARI)
+* **Adjusted Rand Index (ARI)**:
 Measures agreement between clusters and diagnosis labels
 (0 = random, 1 = perfect match).
 
-* Normalized Mutual Information (NMI)
+* **Normalized Mutual Information (NMI)**:
 Measures shared information between cluster assignments and diagnoses
 (0 = no relation, 1 = perfect correlation).
 
@@ -201,11 +201,11 @@ These metrics reflect whether the embedding space captures medically meaningful 
 
 To evaluate the geometric structure of the embedding without relying on diagnoses:
 
-* Silhouette score
+* **Silhouette score**:
 Measures cohesion vs. separation
 Higher = better defined clusters.
 
-* Davies–Bouldin index
+* **Davies–Bouldin index**:
 Measures how overlapped clusters are
 Lower = better clustering.
 
