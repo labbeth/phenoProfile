@@ -342,7 +342,7 @@ For details, see the [LICENSE](LICENSE) file.
 
 ```bibtex
 @misc{pheno_profile_2025,
-  author       = Labbé T.,
+  author       = Thomas Labbé,
   title        = {Pheno Profile: Hyperbolic and Euclidean Patient Phenotypes Embeddings},
   year         = {2025},
   publisher    = {GitHub},
