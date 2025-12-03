@@ -222,6 +222,10 @@ For each embedding method, we generate three t-SNE plots, each highlighting diff
 output/plots/tsne_<method>_diag_only.png
 ```
 
+<p align="center">
+  <img src="assets/tsne_einstein_unw_diag_only.png" alt="PhenoProfile" width="200"/>
+</p>
+
 * t-SNE applied only on diagnosed patients
 * Points colored by diagnosis
 * Shows whether diagnoses naturally form coherent phenotypic groups

@@ -26,7 +26,7 @@ OUT_CSV_PATH = DATA_DIR / "diagnosis_synthetic.csv"
 
 # Config
 NUM_DIAGNOSES = 15                # total synthetic diagnostic categories
-MISSING_RATE = 0.10               # 10% of patients will be missing diagnosis
+MISSING_RATE = 0.95               # 95% of patients will be missing diagnosis
 RANDOM_SEED = 42
 
 def main():
