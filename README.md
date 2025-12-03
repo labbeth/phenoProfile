@@ -327,3 +327,30 @@ Writes results to:
 output/evaluation_results.csv
 ```
 
+## 📜 License & Usage
+
+This project is released under an **All Rights Reserved – Research Use Only** license.
+
+You may use, view, and modify the code for **non-commercial academic research**.  
+Redistribution and commercial use are **not permitted** without prior written consent.
+
+For details, see the [LICENSE](LICENSE) file.
+
+## 📚 Citation
+
+If you use this repository, its ideas, or its code in a scientific publication, please cite it as:
+
+> Thomas Labbé. *Pheno Profile: Hyperbolic and Euclidean Patient Phenotypes Embeddings*. 2025. GitHub repository.  
+> URL: https://github.com/labbeth/phenoProfile
+
+## ⚠️ Disclaimer
+
+This repository is intended **for research only**.
+
+- It is **not** a medical device.
+- It must **not** be used for clinical decision-making, diagnosis, or
+  patient management.
+- All experiments should be run on **de-identified data**, in compliance
+  with your local ethical and legal regulations (GDPR, HIPAA, etc.).
+
+The authors accept no responsibility for any misuse of this code.
