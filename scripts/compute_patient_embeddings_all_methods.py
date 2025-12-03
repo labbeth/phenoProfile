@@ -458,6 +458,7 @@ def main():
     model.eval()
     manifold = model.manifold
     print("Manifold:", manifold)
+    print("  curvature c:", getattr(manifold, "c", None))
 
     # 3. Convert HPO embeddings to torch tensor on the same device
     hpo_embeddings = torch.from_numpy(hpo_embeddings_np).to(DEVICE).to(torch.float32)
