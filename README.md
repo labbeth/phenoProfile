@@ -223,7 +223,7 @@ output/plots/tsne_<method>_diag_only.png
 ```
 
 <p align="center">
-  <img src="assets/tsne_einstein_unw_diag_only.png" alt="PhenoProfile" width="200"/>
+  <img src="assets/tsne_einstein_unw_diag_only.png" alt="PhenoProfile" width="350"/>
 </p>
 
 * t-SNE applied only on diagnosed patients
