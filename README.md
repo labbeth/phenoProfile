@@ -5,6 +5,8 @@
 
 <br>
 
+[![Cite this repo](https://img.shields.io/badge/Cite%20this%20Repo-CITATION.cff-blue.svg)](./CITATION.cff)
+
 
 This project provides a complete pipeline for learning dense patient embeddings from a binary patient × HPO phenotype matrix, using multiple embedding methods:
 
