@@ -340,10 +340,16 @@ For details, see the [LICENSE](LICENSE) file.
 
 ## 📚 Citation
 
-If you use this repository, its ideas, or its code in a scientific publication, please cite it as:
-
-> Thomas Labbé. *Pheno Profile: Hyperbolic and Euclidean Patient Phenotypes Embeddings*. 2025. GitHub repository.  
-> URL: https://github.com/labbeth/phenoProfile
+```bibtex
+@misc{pheno_profile_2025,
+  author       = Labbé T.,
+  title        = {Pheno Profile: Hyperbolic and Euclidean Patient Phenotypes Embeddings},
+  year         = {2025},
+  publisher    = {GitHub},
+  journal      = {GitHub repository},
+  howpublished = {\url{https://github.com/labbeth/phenoProfile}}
+}
+```
 
 ## ⚠️ Disclaimer
 
