@@ -173,33 +173,84 @@ The Einstein midpoint is a **fast closed-form approximation** of the Fréchet me
 
 ## 🧪 Evaluation Workflow
 
-The evaluation script compares each embedding method using:
+This evaluation pipeline allows to assess:
 
-### 1. Clustering performance
+* How well embeddings preserve diagnosis-related structure
+* Whether embeddings produce clear intrinsic clustering
+* How diagnosed patients integrate into the global population manifold
 
-Using KMeans (k = number of diagnosis classes):
+Together, these metrics and visualizations give a comprehensive, clinically meaningful assessment of patient phenotype embeddings.
+
+### 1. Diagnosis-based clustering performance
+
+We measure how well the embedding space organizes patients with known diagnoses.
+
+We use KMeans with k = number of diagnosis classes and compute:
 
 * Adjusted Rand Index (ARI)
+Measures agreement between clusters and diagnosis labels
+(0 = random, 1 = perfect match).
+
 * Normalized Mutual Information (NMI)
+Measures shared information between cluster assignments and diagnoses
+(0 = no relation, 1 = perfect correlation).
 
-These compare unsupervised clusters to the (synthetic or real) diagnosis labels.
+These metrics reflect whether the embedding space captures medically meaningful phenotype similarity.
 
-### 2. Intrinsic cluster quality
+### 2. Intrinsic clustering quality (diagnosis-free)
 
-Independent of diagnoses:
+To evaluate the geometric structure of the embedding without relying on diagnoses:
 
 * Silhouette score
-* Davies–Bouldin index
+Measures cohesion vs. separation
+Higher = better defined clusters.
 
-These assess how “clusterable” the embedding space is.
+* Davies–Bouldin index
+Measures how overlapped clusters are
+Lower = better clustering.
+
+These describe how “clusterable” the embedding is on its own.
 
 ### 3. Visual inspection
 
-Optional t-SNE projections for each embedding:
+Because clinical data is complex, visualization is crucial.
+For each embedding method, we generate three t-SNE plots, each highlighting different properties of the manifold:
+
+**(A) Diagnosis-Only Manifold**
 
 ```
-output/plots/tsne_<method>.png
+output/plots/tsne_<method>_diag_only.png
 ```
+
+* t-SNE applied only on diagnosed patients
+* Points colored by diagnosis
+* Shows whether diagnoses naturally form coherent phenotypic groups
+* Useful for evaluating diagnosis heterogeneity
+
+**(B) Full Population: Cluster View**
+
+```
+output/plots/tsne_<method>_full_clusters.png
+```
+
+* t-SNE applied on all patients
+* Points colored by KMeans cluster assignments
+* Shows how the global patient population organizes in the latent space
+
+**(C) Diagnosis Overlay on the Full Population Manifold**
+
+```
+output/plots/tsne_<method>_pop_with_diagnosis.png
+```
+
+* t-SNE on all patients, plotted in light grey
+* Diagnosed patients overlaid in color
+* Reveals how diagnoses sit inside the full population structure
+* Shows:
+  * whether diagnosis groups correspond to dense phenotypic regions
+  * how undiagnosed patients surround known diagnostic clusters
+  * potential phenotype-based diagnosis propagation paths
+
 
 ## 🛠 How to Run the Pipeline
 
