@@ -223,7 +223,7 @@ output/plots/tsne_<method>_diag_only.png
 ```
 
 <p align="center">
-  <img src="assets/tsne_einstein_unw_diag_only.png" alt="PhenoProfile" width="350"/>
+  <img src="assets/tsne_einstein_unw_diag_only.png" alt="(A)" width="400"/>
 </p>
 
 * t-SNE applied only on diagnosed patients
@@ -237,6 +237,10 @@ output/plots/tsne_<method>_diag_only.png
 output/plots/tsne_<method>_full_clusters.png
 ```
 
+<p align="center">
+  <img src="assets/tsne_einstein_unw_full_clusters.png" alt="(B)" width="400"/>
+</p>
+
 * t-SNE applied on all patients
 * Points colored by KMeans cluster assignments
 * Shows how the global patient population organizes in the latent space
@@ -246,6 +250,10 @@ output/plots/tsne_<method>_full_clusters.png
 ```
 output/plots/tsne_<method>_pop_with_diagnosis.png
 ```
+
+<p align="center">
+  <img src="assets/tsne_einstein_unw_pop_with_diagnosis.png" alt="(C)" width="400"/>
+</p>
 
 * t-SNE on all patients, plotted in light grey
 * Diagnosed patients overlaid in color
